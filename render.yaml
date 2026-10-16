@@ -1,0 +1,25 @@
+# Render Blueprint: Dashboard > New > Blueprint > select this GitHub repository.
+services:
+  - type: web
+    name: reworth
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --preload --workers 2 --threads 4 --timeout 60
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: REWORTH_ENV
+        value: production
+      - key: REWORTH_SECRET_KEY
+        generateValue: true
+      - key: REWORTH_ADMIN_EMAIL
+        sync: false          # you will be asked for this when creating the Blueprint
+      - key: REWORTH_ADMIN_PASSWORD
+        sync: false          # choose a strong password (8+ characters)
+      # Free instances have an ephemeral disk: SQLite data resets on every deploy/restart.
+      # For persistent data, use a paid plan, add a disk, and set:
+      #   REWORTH_DB_PATH=/var/data/reworth.db
+      # Optional password-reset email (any SMTP provider):
+      #   REWORTH_SMTP_HOST, REWORTH_SMTP_PORT, REWORTH_SMTP_USER, REWORTH_SMTP_PASSWORD, REWORTH_SMTP_FROM

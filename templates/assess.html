@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Assess a product — ReWorth{% endblock %}
+{% block content %}
+<section class="page-head compact-head">
+  <p class="eyebrow">PRODUCT ASSESSMENT</p>
+  <h1>Let's understand the product,<br><em>not just the price tag.</em></h1>
+  <p>Give us what you know. If you don't know a cost or the exact fault, that's completely okay.</p>
+</section>
+
+<section class="assessment-layout">
+  <form id="assessmentForm" class="form-card"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="progress-top"><span id="stepLabel">Step 1 of 4</span><span id="qualityLabel">Assessment starts here</span></div>
+    <div class="progress-track"><span id="progressBar"></span></div>
+
+    <div class="form-step active" data-step="1">
+      <div class="section-number">01</div>
+      <div class="form-content">
+        <h2>First, tell us about it.</h2><p class="helper">A rough answer is better than a forced guess.</p>
+        <div class="field-grid">
+          <label>Product name<input name="product_name" required placeholder="e.g. Samsung phone"></label>
+          <label>Category<select name="category" required><option value="">Choose one</option>{% for category in categories %}<option>{{ category }}</option>{% endfor %}</select></label>
+        </div>
+        <label>How old is it? <span class="unit">years</span><input name="age" type="number" min="0" max="100" required placeholder="e.g. 3"></label>
+        <label>How often do you use it?<select name="usage_frequency" required><option value="">Choose one</option><option>Rarely</option><option>Sometimes</option><option>Daily</option><option>Very heavily</option></select></label>
+      </div>
+    </div>
+
+    <div class="form-step" data-step="2">
+      <div class="section-number">02</div>
+      <div class="form-content">
+        <h2>What shape is it in?</h2><p class="helper">Separate how it looks from how it works.</p>
+        <label>Overall condition</label>
+        <div class="choice-row four"><label class="choice"><input type="radio" name="condition" value="Excellent" required><span><b>Excellent</b><small>Almost like new</small></span></label><label class="choice"><input type="radio" name="condition" value="Good"><span><b>Good</b><small>Mostly healthy</small></span></label><label class="choice"><input type="radio" name="condition" value="Fair"><span><b>Fair</b><small>Some wear</small></span></label><label class="choice"><input type="radio" name="condition" value="Poor"><span><b>Poor</b><small>Major issues</small></span></label></div>
+        <label>Functional condition</label>
+        <div class="choice-row four"><label class="choice"><input type="radio" name="functional_condition" value="Works normally" required><span><b>Works normally</b><small>No functional issue</small></span></label><label class="choice"><input type="radio" name="functional_condition" value="Works with problems"><span><b>Works with problems</b><small>Still usable</small></span></label><label class="choice"><input type="radio" name="functional_condition" value="Barely works"><span><b>Barely works</b><small>Hard to rely on</small></span></label><label class="choice"><input type="radio" name="functional_condition" value="Does not work"><span><b>Does not work</b><small>Currently unusable</small></span></label></div>
+        <label>Cosmetic condition</label>
+        <div class="choice-row four"><label class="choice"><input type="radio" name="cosmetic_condition" value="Like new" required><span><b>Like new</b></span></label><label class="choice"><input type="radio" name="cosmetic_condition" value="Minor wear"><span><b>Minor wear</b></span></label><label class="choice"><input type="radio" name="cosmetic_condition" value="Visible wear"><span><b>Visible wear</b></span></label><label class="choice"><input type="radio" name="cosmetic_condition" value="Major damage"><span><b>Major damage</b></span></label></div>
+      </div>
+    </div>
+
+    <div class="form-step" data-step="3">
+      <div class="section-number">03</div>
+      <div class="form-content">
+        <h2>What is actually happening?</h2><p class="helper">ReWorth does not diagnose hardware. It uses your description to judge decision risk.</p>
+        <label>Closest description<select name="problem_type" required><option value="">Choose the closest match</option><option>Minor / occasional issue</option><option>Performance has become poor</option><option>Doesn't turn on</option><option>Battery / power issue</option><option>Display / screen issue</option><option>Overheating</option><option>Strange noise</option><option>Physical damage</option><option>Not sure</option><option>Other</option></select></label>
+        <label>Describe the problem <span class="unit">optional</span><textarea name="problem_description" rows="4" placeholder="For example: It suddenly stopped turning on yesterday. No idea what part is damaged."></textarea></label>
+        <label>Did anything happen before the problem? <span class="unit">optional</span><select name="incident"><option value="">I don't know / nothing to add</option><option>Stopped suddenly</option><option>Got worse gradually</option><option>Dropped or physically damaged</option><option>Exposed to liquid</option><option>After a power/charging issue</option><option>After a software/update issue</option></select></label>
+        <label>Repair history</label>
+        <div class="choice-row three"><label class="choice"><input type="radio" name="repair_history" value="Never repaired" required><span><b>Never</b><small>No previous repair</small></span></label><label class="choice"><input type="radio" name="repair_history" value="Repaired once"><span><b>Once</b><small>One previous repair</small></span></label><label class="choice"><input type="radio" name="repair_history" value="Repaired multiple times"><span><b>Several times</b><small>Repeated repairs</small></span></label></div>
+        <label>Are any important parts missing? <span class="unit">optional</span><select name="missing_parts"><option value="">No / not sure</option><option>No</option><option>Yes</option></select></label>
+      </div>
+    </div>
+
+    <div class="form-step" data-step="4">
+      <div class="section-number">04</div>
+      <div class="form-content">
+        <h2>Now, the money — if you know it.</h2><p class="helper">Unknown costs are allowed. ReWorth will not invent a price.</p>
+        <div class="field-grid">
+          <label>Estimated repair cost <span class="unit">₹ · optional</span><input name="repair_cost" type="number" min="0" step="0.01" placeholder="Leave blank if unknown"></label>
+          <label>Estimated replacement cost <span class="unit">₹ · optional</span><input name="replacement_cost" type="number" min="1" step="0.01" placeholder="Leave blank if unknown"></label>
+        </div>
+        <div class="uncertainty-card"><strong>Don't know the cost?</strong><p>No problem. ReWorth can still assess age, condition, problem severity, repair history and repairability. If there isn't enough information, it will tell you to get a diagnosis instead of pretending to know.</p></div>
+      </div>
+    </div>
+
+    <div class="form-footer step-footer">
+      <button class="button secondary" id="backBtn" type="button" hidden>← Back</button>
+      <div class="footer-spacer"></div>
+      <button class="button" id="nextBtn" type="button">Continue <span>→</span></button>
+      <button class="button" id="submitBtn" type="submit" hidden>See my ReWorth result <span>→</span></button>
+    </div>
+  </form>
+
+  <aside class="side-note sticky-note">
+    <div class="note-icon">✦</div>
+    <h3>What makes this assessment different?</h3>
+    <p>ReWorth looks at several signals together — age, condition, problem severity, repair history, repairability and cost when available.</p>
+    <div class="mini-list"><span>01</span> No invented prices</div><div class="mini-list"><span>02</span> No fake hardware diagnosis</div><div class="mini-list"><span>03</span> Confidence based on information quality</div><div class="mini-list"><span>04</span> Clear next step after the result</div>
+  </aside>
+</section>
+
+<div class="result-modal" id="resultModal" aria-hidden="true">
+  <div class="result-box result-box-wide">
+    <button class="modal-close" onclick="closeResult()">×</button>
+    <p class="eyebrow">YOUR REWORTH RESULT</p>
+    <div class="result-summary"><div><div class="result-big"><span id="resultIcon">↻</span><h2 id="decisionText">Repair</h2></div><p id="resultHeadline" class="result-headline"></p></div><div class="score-circle"><strong id="scoreText">0</strong><span>/100</span></div></div>
+    <div class="confidence-row"><span>Assessment confidence</span><strong id="confidenceText">Moderate</strong><span class="quality-pill" id="qualityText">Information quality: 0%</span></div>
+    <div class="result-grid"><div class="result-panel"><h3>Why we reached this</h3><p id="reasonText" class="result-reason"></p></div><div class="result-panel next-panel"><h3>What to do next</h3><p id="nextStepText"></p></div></div>
+    <div class="result-panel factors-panel"><h3>What influenced the score</h3><div id="factorList" class="factor-list"></div></div>
+    <div class="result-actions"><button class="button" onclick="closeResult()">Done</button><a class="button secondary" href="{{ url_for('dashboard') }}">View history</a></div>
+    <p class="disclaimer">ReWorth is a decision-support tool. It does not diagnose faults, guarantee repairability, quote prices, or replace professional advice.</p>
+  </div>
+</div>
+{% endblock %}

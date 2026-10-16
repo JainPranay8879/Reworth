@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Account Settings — ReWorth{% endblock %}
+{% block content %}
+<section class="page-head compact-head"><p class="eyebrow">ACCOUNT & PRIVACY</p><h1>Your account,<br><em>your choices.</em></h1><p>Manage your details, password and saved ReWorth data in one place.</p></section>
+<section class="account-wrap">
+  <div class="account-grid">
+    <div class="account-card">
+      <div class="account-card-head"><div><p class="eyebrow">PROFILE</p><h2>Personal details</h2></div><span class="role-tag {{ user['role'] }}">{{ user['role']|capitalize }}</span></div>
+      <form method="post" action="{{ url_for('update_profile') }}" class="account-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label>Name<input name="name" value="{{ user['name'] }}" required></label>
+        <label>Email<input name="email" type="email" value="{{ user['email'] }}" required></label>
+        <button class="button" type="submit">Save changes</button>
+      </form>
+    </div>
+
+    <div class="account-card">
+      <div class="account-card-head"><div><p class="eyebrow">SECURITY</p><h2>Password</h2></div></div>
+      <form method="post" action="{{ url_for('change_password') }}" class="account-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label>Current password<input name="current_password" type="password" required></label>
+        <label>New password<input name="new_password" type="password" minlength="8" required></label>
+        <label>Confirm new password<input name="confirm_password" type="password" minlength="8" required></label>
+        <button class="button" type="submit">Change password</button>
+      </form>
+      <a class="account-text-link" href="{{ url_for('forgot_password') }}">Forgot your password? Reset it →</a>
+    </div>
+  </div>
+
+  <div class="account-card privacy-card">
+    <div class="account-card-head"><div><p class="eyebrow">PRIVACY</p><h2>What ReWorth stores</h2></div></div>
+    <div class="privacy-points">
+      <div><strong>Account information</strong><p>Your name, email and securely hashed password are stored so you can sign in and manage your account.</p></div>
+      <div><strong>Assessment information</strong><p>Your saved product assessments are linked to your account so they can appear in your history and dashboard.</p></div>
+      <div><strong>No unnecessary data</strong><p>ReWorth does not need payment details, precise location or other unrelated personal information to assess a product.</p></div>
+      <div><strong>Local project note</strong><p>This college/demo version stores data in its local SQLite database. Before public deployment, production security, HTTPS, backups and a proper email service should be configured.</p></div>
+    </div>
+    <div class="account-actions"><a class="button secondary" href="{{ url_for('account_export') }}">Download my assessment data</a><a class="button secondary" href="{{ url_for('logout') }}">Log out</a></div>
+  </div>
+
+  <div class="account-card danger-card">
+    <div class="account-card-head"><div><p class="eyebrow">DANGER ZONE</p><h2>Delete account</h2></div></div>
+    <p>This permanently removes your account and saved assessments from this local ReWorth database.</p>
+    {% if user['role'] == 'admin' %}<p class="admin-self">The built-in administrator cannot be deleted from Account Settings.</p>{% else %}
+    <form method="post" action="{{ url_for('delete_account') }}" class="delete-form" onsubmit="return confirm('Delete your ReWorth account and saved assessments? This cannot be undone.')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input name="password" type="password" required placeholder="Enter your current password">
+      <button class="button danger-button" type="submit">Delete my account</button>
+    </form>{% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — ReWorth{% endblock %}
+{% block content %}
+<section class="admin-head">
+  <div><p class="eyebrow">REWORTH ADMIN</p><h1>See how ReWorth is <em>being used.</em></h1><p>Monitor users, assessments and recommendation patterns from one place.</p></div>
+  <div class="admin-head-actions"><a class="button secondary" href="{{ url_for('admin_users') }}">Manage users</a><a class="button" href="{{ url_for('admin_export', decision=filters.decision, category=filters.category, q=filters.q) }}">Export CSV ↓</a></div>
+</section>
+<section class="admin-wrap">
+  <div class="admin-stats">
+    <div class="admin-stat"><span>Users</span><strong>{{ totals.users }}</strong><small>{{ totals.admins }} admin{% if totals.admins != 1 %}s{% endif %}</small></div>
+    <div class="admin-stat"><span>Assessments</span><strong>{{ totals.assessments }}</strong><small>All saved assessments</small></div>
+    <div class="admin-stat"><span>Average score</span><strong>{{ totals.avg_score }}</strong><small>Out of 100</small></div>
+    <div class="admin-stat"><span>Low confidence</span><strong>{{ totals.low_confidence }}</strong><small>Needs more information</small></div>
+  </div>
+
+  <div class="admin-grid-top">
+    <section class="admin-card decision-overview"><div class="admin-card-head"><div><p class="eyebrow">RECOMMENDATIONS</p><h2>Where decisions land</h2></div><span class="admin-count">{{ totals.assessments }} total</span></div>
+      {% for decision in decisions %}<div class="bar-row"><div><span>{{ decision }}</span><strong>{{ decision_counts[decision] }}</strong></div><div class="bar-track"><i style="width: {{ ((decision_counts[decision] / totals.assessments * 100) if totals.assessments else 0)|round(1) }}%"></i></div></div>{% endfor %}
+    </section>
+    <section class="admin-card"><div class="admin-card-head"><div><p class="eyebrow">CATEGORIES</p><h2>What people assess</h2></div></div>
+      {% if category_counts %}<div class="category-list">{% for row in category_counts %}<div><span>{{ row['category'] }}</span><strong>{{ row['total'] }}</strong></div>{% endfor %}</div>{% else %}<div class="admin-empty">No category data yet.</div>{% endif %}
+    </section>
+  </div>
+
+  <section class="admin-card assessment-admin-card">
+    <div class="admin-card-head admin-card-head-stack"><div><p class="eyebrow">ASSESSMENT MONITOR</p><h2>Recent assessments</h2><p>Search and filter the latest saved decisions.</p></div></div>
+    <form class="admin-filters" method="get" action="{{ url_for('admin_dashboard') }}">
+      <input name="q" value="{{ filters.q }}" placeholder="Search product, user or email…">
+      <select name="decision"><option value="">All decisions</option>{% for decision in decisions %}<option value="{{ decision }}" {% if filters.decision == decision %}selected{% endif %}>{{ decision }}</option>{% endfor %}</select>
+      <select name="category"><option value="">All categories</option>{% for category in categories %}<option value="{{ category }}" {% if filters.category == category %}selected{% endif %}>{{ category }}</option>{% endfor %}</select>
+      <button class="button" type="submit">Apply filters</button>
+      {% if filters.q or filters.decision or filters.category %}<a class="button secondary" href="{{ url_for('admin_dashboard') }}">Clear</a>{% endif %}
+    </form>
+    {% if assessments %}<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Product</th><th>User</th><th>Decision</th><th>Score</th><th>Confidence</th><th>Date</th><th></th></tr></thead><tbody>{% for row in assessments %}<tr><td><strong>{{ row['product_name'] }}</strong><small>{{ row['category'] }} · {{ row['age'] }} yr{% if row['age'] != 1 %}s{% endif %}</small></td><td><strong>{{ row['user_name'] }}</strong><small>{{ row['user_email'] }}</small></td><td><span class="decision-tag">{{ row['decision'] }}</span></td><td><strong>{{ row['score'] }}/100</strong></td><td><span class="confidence-tag {{ (row['confidence'] or 'Moderate')|lower }}">{{ row['confidence'] or 'Moderate' }}</span></td><td>{{ row['created_at'][:10] }}</td><td><a class="table-link" href="{{ url_for('admin_assessment', assessment_id=row['id']) }}">View →</a></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="admin-empty">No assessments match these filters.</div>{% endif %}
+  </section>
+
+  <section class="admin-card users-preview"><div class="admin-card-head"><div><p class="eyebrow">USERS</p><h2>Recently joined</h2></div><a class="table-link" href="{{ url_for('admin_users') }}">View all →</a></div>
+    <div class="user-preview-list">{% for user in users %}<div><div class="avatar">{{ user['name'][0]|upper }}</div><div><strong>{{ user['name'] }}</strong><small>{{ user['email'] }}</small></div><span class="role-tag {{ user['role'] }}">{{ user['role'] }}</span><small class="user-date">{{ user['created_at'][:10] }}</small></div>{% else %}<div class="admin-empty">No users yet.</div>{% endfor %}</div>
+  </section>
+</section>
+{% endblock %}
